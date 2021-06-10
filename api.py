@@ -466,7 +466,9 @@ class Downloader():
         for batch in containers:
             pool = Pool(self.pool_size)
             outfile = open(self.outfile, 'a')
-            for fasta in pool.starmap(self.use_efetch,
+            efetch = self.use_efetch
+            print(efetch)
+            for fasta in pool.starmap(efetch,
                                       zip(batch,
                                           repeat(webenv),
                                           repeat(query_key),
@@ -508,7 +510,6 @@ class Downloader():
             count = record["count"]
             self.original_count = count
 
-            print(record)
             self.main_organizer(count, record["qkey"], record["webenv"])
         except ProgramDone:
             return
@@ -518,7 +519,7 @@ def main():
     Main function. Defines how the arguments get passed to the rest of the
     program.
     """
-    dler = Downloader("nucleotide", "NC_045512", "/Users/thangchu/Desktop/coronavirus/test.fasta", True, 0)
+    dler = Downloader("nucleotide", "BS000695", "/Users/thangchu/Desktop/coronavirus/coronavirus/test.fasta", True, 0)
     dler.run_everything()
 
 
