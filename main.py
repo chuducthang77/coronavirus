@@ -24,7 +24,7 @@ print(record)
 fetchUrl = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 fetch_params = {"db": 'nucleotide',
                     "retmode": "text",
-                    "rettype": "fasta",
+                    "rettype": "gb",
                     "api_key": 'bbceccfdf97b6b7e06e93c918e010f1ecf09',
                     "WebEnv": record['webenv'],
                     "query_key": record['qkey'],
@@ -33,4 +33,4 @@ fetch_params = {"db": 'nucleotide',
                     "term": 'BS000695'}
 fetchHandle = requests.get(fetchUrl, params=fetch_params,timeout=30)
 fasta = fetchHandle.text
-print(fetchHandle)
+print(fasta)

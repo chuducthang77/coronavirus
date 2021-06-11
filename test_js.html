@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <script>
+
+        function xmlToJson(xml) {
+            // Create the return object
+            var obj = {};
+
+            if (xml.nodeType == 1) {
+                // element
+                // do attributes
+                if (xml.attributes.length > 0) {
+                    obj["@attributes"] = {};
+                    for (var j = 0; j < xml.attributes.length; j++) {
+                        var attribute = xml.attributes.item(j);
+                        obj["@attributes"][attribute.nodeName] = attribute.nodeValue;
+                    }
+                }
+            } else if (xml.nodeType == 3) {
+                // text
+                obj = xml.nodeValue;
+            }
+
+            // do children
+            // If all text nodes inside, get concatenated text from them.
+            var textNodes = [].slice.call(xml.childNodes).filter(function (node) {
+                return node.nodeType === 3;
+            });
+            if (xml.hasChildNodes() && xml.childNodes.length === textNodes.length) {
+                obj = [].slice.call(xml.childNodes).reduce(function (text, node) {
+                    return text + node.nodeValue;
+                }, "");
+            } else if (xml.hasChildNodes()) {
+                for (var i = 0; i < xml.childNodes.length; i++) {
+                    var item = xml.childNodes.item(i);
+                    var nodeName = item.nodeName;
+                    if (typeof obj[nodeName] == "undefined") {
+                        obj[nodeName] = xmlToJson(item);
+                    } else {
+                        if (typeof obj[nodeName].push == "undefined") {
+                            var old = obj[nodeName];
+                            obj[nodeName] = [];
+                            obj[nodeName].push(old);
+                        }
+                        obj[nodeName].push(xmlToJson(item));
+                    }
+                }
+            }
+            return obj;
+        }
+
+        // Changes XML to JSON
+
+        // const str = {}
+        // Crawl the genbank files 
+        const fetchGenBankUrl = new URL(
+            "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
+        );
+
+        fetchGenBank = {
+            db: "nucleotide",
+            retmode: "xml",
+            rettype: "gb",
+            api_key: "bbceccfdf97b6b7e06e93c918e010f1ecf09",
+            WebEnv: ['MCID_60c376818300f85f20062d28'],
+            query_key: ['1'],
+            retstart: 0,
+            retmax: 50000,
+            term: 'NC_045512',
+        };
+        fetchGenBankUrl.search = new URLSearchParams(fetchGenBank).toString();
+
+        fetch(fetchGenBankUrl)
+            .then((response) => response.text())
+            .then((data) => {
+                // console.log(typeof (data))
+                var XmlNode = new DOMParser().parseFromString(data, 'text/xml');
+                var result = xmlToJson(XmlNode)
+                console.log(result['GBSet'][1]['GBSeq']['GBSeq_locus'])
+                console.log(result['GBSet'][1]['GBSeq']['GBSeq_create-date'])
+                console.log(result['GBSet'][1]['GBSeq']['GBSeq_length'])
+                console.log(result['GBSet'][1]['GBSeq']['GBSeq_organism'])
+                console.log(result['GBSet'][1]['GBSeq']['GBSeq_feature-table']['GBFeature'][0]['GBFeature_quals']['GBQualifier'][3]['GBQualifier_value'])
+                console.log(result['GBSet'][1]['GBSeq']['GBSeq_feature-table']['GBFeature'][0]['GBFeature_quals']['GBQualifier'][5]['GBQualifier_value'])
+                console.log(result['GBSet'][1]['GBSeq']['GBSeq_feature-table']['GBFeature'][0]['GBFeature_quals']['GBQualifier'][6]['GBQualifier_value'])
+            });
+
+
+    </script>
+</body>
+
+</html>
