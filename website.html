@@ -9,15 +9,73 @@
 </head>
 
 <body>
-    <form id='form' ob></form>
+    <form>
+        Accession:
+        <input type="text" id='acc'>
+        <input type="submit" onclick="getAccession()">
+    </form>
 
     <script>
-        const button = document.querySelector('button')
-        button.addEventListener('click', (e) => {
-            e.preventDefault()
-            const id = document.getElementById('id')
-            console.log(id)
-        })
+        var accession = document.getElementById('acc').value
+        // Define the variable
+        var searchUrl = new URL('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi')
+        var fetchUrl = new URL('https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi')
+        var record = {
+            'qkey': '',
+            'webenv': '',
+            'count': '',
+            'accn': ''
+        }
+
+        var searchParams = {
+            'db': 'nucleotide',
+            'term': accession,
+            'retmode': 'json',
+            'usehistory': 'y',
+            'idtype': 'acc',
+            'retmax': 50000,
+            'retstart': 0,
+            'api_key': "bbceccfdf97b6b7e06e93c918e010f1ecf09"
+        }
+
+
+        function getAccession() {
+            console.log('hello')
+
+
+            searchUrl.search = new URLSearchParams(searchParams).toString()
+
+            fetch(searchUrl)
+                .then(response => response.json())
+                .then(data => {
+                    record.qkey = [data.esearchresult.querykey],
+                        record.webenv = data.esearchresult.webenv,
+                        record.count = Number(data.esearchresult.count),
+                        record.accn = data.esearchresult.idlist
+
+                    console.log(record)
+
+                    var fetchParams = {
+                        "db": 'nucleotide',
+                        "retmode": "text",
+                        "rettype": "fasta",
+                        "api_key": 'bbceccfdf97b6b7e06e93c918e010f1ecf09',
+                        "WebEnv": 'MCID_60c2df4b361edb1df50a936f',
+                        "query_key": ['1'],
+                        "retstart": 0,
+                        "retmax": 50000,
+                        "term": accession
+                    }
+                    fetchUrl.search = new URLSearchParams(fetchParams).toString()
+                    fetch(fetchUrl)
+                        .then(response => response.text())
+                        .then(data => console.log(data))
+
+                })
+            // console.log('this is main record',record)
+
+
+        }
     </script>
 
 </body>

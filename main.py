@@ -19,6 +19,8 @@ record["webenv"] = handle.json()["esearchresult"]["webenv"]
 record["count"] = int(handle.json()["esearchresult"]["count"])
 record["accn"] = handle.json()["esearchresult"]["idlist"]
 
+print(record)
+
 fetchUrl = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi"
 fetch_params = {"db": 'nucleotide',
                     "retmode": "text",
